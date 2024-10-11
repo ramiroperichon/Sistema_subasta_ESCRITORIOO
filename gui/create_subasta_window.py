@@ -53,18 +53,17 @@ class CreateSubastaWindow(tk.Toplevel):
         forma_pago = self.entry_payment_method.get()
         estado = self.entry_status.get()
 
-         # Llamar a la función de inserción en la base de datos
+        # Llamar a la función que inserta la subasta en la base de datos
         success, message = insert_subasta(nombre, fecha_inicio, fecha_fin, descripcion, modo_entrega, forma_pago, estado)
 
-        # Mostrar un mensaje dependiendo de si la inserción fue exitosa o no
         if success:
             messagebox.showinfo("Éxito", message)
 
             # Refrescar el Treeview en la ventana principal
             if self.main_window:
-                self.create_widgets()
+                self.main_window.load_data()
 
-            # Cerrar la ventana de creación
-            self.destroy()
+            self.destroy()  # Cerrar la ventana una vez que los datos se guarden
         else:
             messagebox.showerror("Error", f"Error al guardar la subasta: {message}")
+

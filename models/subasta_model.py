@@ -1,8 +1,8 @@
 class Subasta:
-    def __init__(self, nombre, fecha_incio, fecha_fin,
+    def __init__(self, nombre, fecha_inicio, fecha_fin,
                  descripcion, modo_entrega, forma_pago, estado):
         self.nombre = nombre
-        self.fecha_incio = fecha_incio
+        self.fecha_inicio = fecha_inicio
         self.fecha_fin = fecha_fin
         self.descripcion = descripcion
         self.modo_entrega = modo_entrega
