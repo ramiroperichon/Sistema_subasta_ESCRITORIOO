@@ -6,8 +6,8 @@ from models.subasta_model import Subasta
 class EditSubastaWindow(tk.Toplevel):
     def __init__(self, master=None, id_subasta=None, main_window=None):
         super().__init__(master)
-        self.main_window = main_window  # Referencia a la ventana principal
-        self.id_subasta = id_subasta  # ID de la subasta a editar
+        self.main_window = main_window 
+        self.id_subasta = id_subasta  
         self.title("Editar Subasta")
         self.geometry("400x800")
         
@@ -16,7 +16,6 @@ class EditSubastaWindow(tk.Toplevel):
         self.create_widgets()
 
     def load_subasta_data(self):
-        # Cargar los datos de la subasta desde la base de datos
         conn = get_db_connection()
         cursor = conn.cursor()
         
@@ -32,7 +31,6 @@ class EditSubastaWindow(tk.Toplevel):
         conn.close()
 
     def create_widgets(self):
-        # Crear las entradas con los datos precargados
         ttk.Label(self, text="Nombre:").pack(pady=5)
         self.entry_name = ttk.Entry(self)
         self.entry_name.insert(0, self.subasta.nombre)
@@ -54,12 +52,12 @@ class EditSubastaWindow(tk.Toplevel):
         self.entry_description.pack(pady=5)
 
         ttk.Label(self, text="Modo de Entrega:").pack(pady=5)
-        self.entry_delivery_mode = ttk.Entry(self)
+        self.entry_delivery_mode = ttk.Combobox(self, values=["Personal", "Envio"])
         self.entry_delivery_mode.insert(0, self.subasta.modo_entrega)
         self.entry_delivery_mode.pack(pady=5)
 
         ttk.Label(self, text="Forma de Pago:").pack(pady=5)
-        self.entry_payment_method = ttk.Entry(self)
+        self.entry_payment_method = ttk.Combobox(self, values=["Transferencia", "Efectivo"])
         self.entry_payment_method.insert(0, self.subasta.forma_pago)
         self.entry_payment_method.pack(pady=5)
 

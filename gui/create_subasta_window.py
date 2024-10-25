@@ -30,11 +30,11 @@ class CreateSubastaWindow(tk.Toplevel):
         self.entry_description.pack(pady=5)
 
         ttk.Label(self, text="Modo de Entrega:").pack(pady=5)
-        self.entry_delivery_mode = ttk.Entry(self)
+        self.entry_delivery_mode = ttk.Combobox(self, values=["Personal", "Envio"], state="readonly")
         self.entry_delivery_mode.pack(pady=5)
 
         ttk.Label(self, text="Forma de Pago:").pack(pady=5)
-        self.entry_payment_method = ttk.Entry(self)
+        self.entry_payment_method = ttk.Combobox(self, values=["Transferencia", "Efectivo"], state="readonly")
         self.entry_payment_method.pack(pady=5)
 
         btn_save = ttk.Button(self, text="Guardar", command=self.save_data)
@@ -77,7 +77,7 @@ class CreateSubastaWindow(tk.Toplevel):
             if self.main_window:
                 self.main_window.load_data()
 
-            self.root.destroy()  # Cerrar la ventana de subasta
+            self.destroy() 
         else:
             messagebox.showerror("Error", f"Error al guardar la subasta: {message}")
 

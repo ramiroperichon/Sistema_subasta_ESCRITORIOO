@@ -78,14 +78,14 @@ class ProductosSubastaWindow:
             id_producto = selected_item[0]
 
             current_values = self.tree_productos.item(id_producto, "values")
-            estado_actual = current_values[3]
+            estado_actual = current_values[4]
 
             nuevo_estado = 0 if estado_actual == "Disponible" else 1
 
             update_estado_producto(id_producto, nuevo_estado)
 
             estado_str = "Disponible" if nuevo_estado == 1 else "No Disponible"
-            self.tree_productos.item(id_producto, values=(current_values[0], current_values[1], current_values[2], estado_str, current_values[4]))
+            self.tree_productos.item(id_producto, values=(current_values[0], current_values[1], current_values[2], current_values[3], estado_str, current_values[5]))
 
             messagebox.showinfo("Estado actualizado", f"El estado del producto ha sido cambiado a '{estado_str}'.")
 
