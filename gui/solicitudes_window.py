@@ -1,7 +1,10 @@
+import io
 import tkinter as tk
-from tkinter import ttk, messagebox
-from database.db_connection import fetch_solicitudes_por_subasta, update_estado_solicitud  
-# from gui.product_images_window import ProductImagesWindow  
+from azure.storage.blob import BlobServiceClient
+from tkinter import Image, ttk, messagebox
+import webbrowser 
+from PIL import Image, ImageTk
+from database.db_connection import fetch_solicitudes_por_subasta, update_estado_solicitud, fetch_imagenes_producto
 
 class SolicitudesWindow:
     def __init__(self, root, id_subasta):
@@ -9,6 +12,8 @@ class SolicitudesWindow:
         self.root.title("Solicitudes de la Subasta")
         self.root.geometry("800x400")
         self.id_subasta = id_subasta
+        self.blob_service_client = BlobServiceClient(account_url="https://imagenesproducto.blob.core.windows.net/imagenes", credential="O4xStjmODbOKRQ8Mj8LVrtDEl/I/VhU05IMXWdYYMMgZRgYGD6GEcMJl28cW9wYemrnlMeyBYhzT+AStBr9rqg")
+        self.container_client = self.blob_service_client.get_container_client("imagenesproducto")
 
         self.create_widgets()
 
@@ -53,9 +58,9 @@ class SolicitudesWindow:
         solicitudes = fetch_solicitudes_por_subasta(self.id_subasta)
 
         for solicitud in solicitudes:
-            id_solicitud, nombre, precio_base, descripcion, estado_aprobacion = solicitud
+            id_producto, nombre, precio_base, descripcion, estado_aprobacion = solicitud
 
-            self.tree_solicitudes.insert("", "end", iid=id_solicitud, values=(nombre, precio_base, descripcion, estado_aprobacion))
+            self.tree_solicitudes.insert("", "end", iid=id_producto, values=(nombre, precio_base, descripcion, estado_aprobacion))
 
     def ver_imagenes(self):
         selected_item = self.tree_solicitudes.selection()
@@ -63,9 +68,25 @@ class SolicitudesWindow:
             messagebox.showwarning("Advertencia", "Por favor, selecciona una solicitud.")
             return
 
-        id_producto = self.tree_solicitudes.item(selected_item, "values")[0] 
+        id_producto = selected_item[0]
+        
+        imagenes = fetch_imagenes_producto(id_producto)
+        if not imagenes:
+            messagebox.showinfo("Info", "No hay imágenes disponibles para este producto.")
+            return
+
         new_window = tk.Toplevel(self.root)
-        # ProductImagesWindow(new_window, id_producto) 
+        new_window.title("Imágenes del Producto")
+        new_window.geometry("800x600")
+
+        for imagen in imagenes:
+            imagen = Image.open(imagen)
+            imagen = imagen.resize((200, 200)) 
+            img_tk = ImageTk.PhotoImage(imagen)
+
+            lbl_imagen = tk.Label(new_window, imagen=img_tk)
+            lbl_imagen.imagen = img_tk  
+            lbl_imagen.pack(pady=10)
 
     def aceptar_solicitud(self):
         selected_item = self.tree_solicitudes.selection()
@@ -73,23 +94,29 @@ class SolicitudesWindow:
             messagebox.showwarning("Advertencia", "Por favor, selecciona una solicitud.")
             return
 
-        id_solicitud = selected_item[0]
-        success, msg = update_estado_solicitud(id_solicitud, "Aprobada")
+        id_producto = selected_item[0]
+        success, msg = update_estado_solicitud(id_producto, "Aprobada")
         if success:
             self.load_data()
         else:
             messagebox.showerror("Error", f"No se pudo aceptar la solicitud: {msg}")
 
     def rechazar_solicitud(self):
-      selected_item = self.tree_solicitudes.selection()
-      if not selected_item:
-          messagebox.showwarning("Advertencia", "Por favor, selecciona una solicitud.")
-          return
+        selected_item = self.tree_solicitudes.selection()
+        if not selected_item:
+            messagebox.showwarning("Advertencia", "Por favor, selecciona una solicitud.")
+            return
 
-      id_solicitud = selected_item[0]  # Obtener el iid, que es el id_solicitud
+        id_producto = selected_item[0]  
 
-      success, msg = update_estado_solicitud(id_solicitud, "Rechazada")
-      if success:
-          self.load_data()
-      else:
-          messagebox.showerror("Error", f"No se pudo rechazar la solicitud: {msg}")
+        success, msg = update_estado_solicitud(id_producto, "Rechazada")
+        if success:
+            self.load_data()
+        else:
+            messagebox.showerror("Error", f"No se pudo rechazar la solicitud: {msg}")
+
+
+    def descargar_imagen(self, ruta):
+        blob_client = self.container_client.get_blob_client(ruta)
+        blob_data = blob_client.download_blob().readall()
+        return Image.open(io.BytesIO(blob_data))

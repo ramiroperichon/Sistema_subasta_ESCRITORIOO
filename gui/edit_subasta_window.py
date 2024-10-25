@@ -63,10 +63,6 @@ class EditSubastaWindow(tk.Toplevel):
         self.entry_payment_method.insert(0, self.subasta.forma_pago)
         self.entry_payment_method.pack(pady=5)
 
-        ttk.Label(self, text="Estado:").pack(pady=5)
-        self.entry_status = ttk.Entry(self)
-        self.entry_status.insert(0, str(self.subasta.estado))
-        self.entry_status.pack(pady=5)
 
         btn_save = ttk.Button(self, text="Guardar Cambios", command=self.save_data)
         btn_save.pack(pady=10)
@@ -79,10 +75,9 @@ class EditSubastaWindow(tk.Toplevel):
         descripcion = self.entry_description.get()
         modo_entrega = self.entry_delivery_mode.get()
         forma_pago = self.entry_payment_method.get()
-        estado = self.entry_status.get()
 
         # Llamar al método para actualizar los datos en la base de datos
-        success, message = update_subasta(self.id_subasta, nombre, fecha_inicio, fecha_fin, descripcion, modo_entrega, forma_pago, estado)
+        success, message = update_subasta(self.id_subasta, nombre, fecha_inicio, fecha_fin, descripcion, modo_entrega, forma_pago)
 
         if success:
             messagebox.showinfo("Éxito", message)
